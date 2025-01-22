@@ -99,18 +99,33 @@ def top_five_transactions(operations: pd.DataFrame) -> list:
     return result
 
 
-def currency_rates() -> list:
-    """Возвращает курсы валют"""
-    logger.info("Поиска курс валют")
-    with open(file_json, encoding="utf-8") as file:
-        user_currencies = json.load(file)
-    result_currencies = []
-    for currency in user_currencies["user_currencies"]:
-        response = requests.get(
-            f"https://api.currencyapi.com/v3/latest?apikey={for_currency}&base_currency={currency}&currencies=RUB"
-        )
-        result_currencies.append({"currency": currency, "rate": round(response.json()["data"]["RUB"]["value"], 2)})
-    return result_currencies
+def currency_rates():
+    # Пример запроса к API (замени на свой реальный URL)
+    response = requests.get(f"https://api.currencyapi.com/v3/latest?apikey={for_currency}")
+
+    # Проверка, что статус ответа 200 (OK)
+    if response.status_code != 200:
+        print(f"Ошибка API: {response.status_code}")
+        return []  # Возвращаем пустой список, если ошибка с запросом
+
+    try:
+        # Получаем JSON-ответ
+        data = response.json()
+        # Печатаем ответ, чтобы увидеть его структуру
+        print(data)
+
+        # Используем .get() для безопасного доступа к 'data'
+        currencies = data.get("data", {})  # Возвращаем пустой словарь, если ключ 'data' отсутствует
+        result_currencies = []
+
+        for currency, value in currencies.items():
+            result_currencies.append({"currency": currency, "rate": round(value["value"], 2)})
+
+        return result_currencies
+
+    except Exception as e:
+        print(f"Ошибка при обработке данных: {e}")
+        return []  # Возвращаем пустой список при ошибке
 
 
 def stock_prices() -> list:
@@ -118,14 +133,36 @@ def stock_prices() -> list:
     logger.info("Поиск основных акций из S&P500")
     url = f"https://api.marketstack.com/v1/eod/latest?access_key={for_share}"
     result = []
+
+    # Открытие и чтение JSON с пользовательскими акциями
     with open(file_json, encoding="utf-8") as file:
         user_shares = json.load(file)
         user_share = ",".join(user_shares["user_stocks"])
         querystring = {"symbols": user_share}
+
         response = requests.get(url, params=querystring)
-        for data in response.json()["data"]:
-            result.append({"stock": data["symbol"], "price": data["close"]})
-        return result
+
+        # Проверка статуса ответа
+        if response.status_code != 200:
+            print(f"Ошибка API: {response.status_code}")
+            return []  # Возвращаем пустой список при ошибке запроса
+
+        try:
+            response_data = response.json()  # Пытаемся получить данные в формате JSON
+
+            # Проверка наличия ключа 'data' в ответе
+            if "data" in response_data:
+                for data in response_data["data"]:
+                    result.append({"stock": data["symbol"], "price": data["close"]})
+            else:
+                print("Ответ не содержит данных по акциям.")
+                return []  # Возвращаем пустой список, если данных нет
+
+        except Exception as e:
+            print(f"Ошибка при обработке данных: {e}")
+            return []  # Возвращаем пустой список при ошибке
+
+    return result
 
 
 def convert_timestamps_to_strings(dataframe):

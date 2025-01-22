@@ -1,9 +1,14 @@
+import os
 from typing import Any
 from unittest.mock import mock_open, patch
 
 import pandas as pd
 
 from src.reports import recording_data, spending_by_category
+
+
+def get_data_file_path(filename: str) -> str:
+    return os.path.join(os.path.dirname(__file__), "..", "data", filename)
 
 
 def test_spending_by_category(transactions: pd.DataFrame) -> None:
@@ -20,7 +25,10 @@ def test_spending_by_category_no_data(transactions: pd.DataFrame) -> None:
 def test_recording_data_decorator(mock_file: Any):
     test_data = pd.DataFrame({"name": ["Alice", "Bob"], "age": [25, 30]})
 
-    @recording_data("test_report.json")
+    # Используем правильный путь
+    data_file_path = get_data_file_path("test_report.json")
+
+    @recording_data(data_file_path)
     def function():
         return test_data
 

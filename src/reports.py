@@ -43,8 +43,8 @@ def spending_by_category(transactions: pd.DataFrame, category: str, date: Option
     three_months_ago = date - pd.DateOffset(months=3)
     transactions["Дата платежа"] = pd.to_datetime(transactions["Дата платежа"], format="%d.%m.%Y")
     filtered_operations = transactions[
-        (transactions["Категория"] == category) &
-        (three_months_ago <= transactions["Дата платежа"]) &
-        (transactions["Дата платежа"] <= date)
-        ]
+        (transactions["Категория"] == category)
+        & (three_months_ago <= transactions["Дата платежа"])
+        & (transactions["Дата платежа"] <= date)
+    ]
     return filtered_operations
