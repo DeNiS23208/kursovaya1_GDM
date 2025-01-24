@@ -5,8 +5,8 @@ from unittest.mock import mock_open, patch
 import pandas as pd
 import pytest
 
-from src.utils import (currency_rates, filter_date_operations, get_data_from_excel, greeting_user, operations_cards,
-                       stock_prices, top_five_transactions)
+from src.utils import (filter_date_operations, get_data_from_excel, greeting_user, operations_cards, stock_prices,
+                       top_five_transactions)
 
 
 @patch("builtins.open", new_callable=mock_open, read_data=b"\x3c\x80\x00\x00\x00")
@@ -51,13 +51,6 @@ def test_top_five_transactions(small_operations: pd.DataFrame) -> None:
     assert top_five_transactions(small_operations) == [
         {"date": "20.09.2021 12:45:12", "amount": 200.00, "category": "Супермаркеты", "description": "Магнит"}
     ]
-
-
-@patch("requests.get")
-def test_currency_rates(mock_convert: Any) -> None:
-    mock_convert.return_value.status_code = 200
-    mock_convert.return_value.json.return_value = {"data": {"RUB": {"value": 1.00}}}
-    assert currency_rates() == [{"currency": "USD", "rate": 1.00}, {"currency": "EUR", "rate": 1.00}]
 
 
 @patch("requests.get")

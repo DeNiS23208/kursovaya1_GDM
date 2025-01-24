@@ -1,34 +1,20 @@
 import pandas as pd
 
+from src.reports import spending_by_category
+from src.services import transactions_by_phone_numbers
+from src.utils import get_data_from_excel
+from src.views import web_main
 
-def load_and_process_data(file_path):
-    """
-    Загружает и обрабатывает данные из файла CSV.
+transactions = get_data_from_excel("../data/transactions.xlsx")
+transactions_df = pd.read_excel("../data/transactions.xlsx")
 
-    :param file_path: Путь к файлу CSV.
-    :return: DataFrame с отфильтрованными полями.
-    """
-    # Определяем необходимые столбцы
-    required_columns = [
-        'Дата платежа', 'Сумма операции', 'Валюта операции',
-        'Категория', 'Описание', 'Тип'
-    ]
 
-    try:
-        # Загружаем данные
-        data = pd.read_csv(file_path, delimiter=',', encoding='utf-8')
+def main(user_date: str, operations: list, operations_df: pd.DataFrame, user_category: str) -> None:
+    """Вызывает результаты всех реализованных функций"""
+    print(web_main(user_date))
+    print(transactions_by_phone_numbers(operations))
+    print(spending_by_category(operations_df, user_category, user_date))
 
-        # Проверяем, содержатся ли нужные столбцы в файле
-        missing_columns = [col for col in required_columns if col not in data.columns]
-        if missing_columns:
-            raise ValueError(f"В файле отсутствуют необходимые столбцы: {missing_columns}")
 
-        # Фильтруем только нужные столбцы
-        filtered_data = data[required_columns]
-
-        print("Данные успешно загружены и обработаны!")
-        return filtered_data
-
-    except Exception as e:
-        print(f"Ошибка при загрузке данных: {e}")
-        return None
+if __name__ == "__main__":
+    main("2021-01-10 12:00:00", transactions, transactions_df, "Супермаркеты")
