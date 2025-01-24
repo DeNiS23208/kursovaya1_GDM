@@ -9,7 +9,7 @@
 
 1. Клонируйте репозиторий
 ```
-https://github.com/Daniil-Tarasov/coursework_1
+https://github.com/DeNiS23208/kursovaya1_GDM
 ```
 
 2. Установите зависимости
